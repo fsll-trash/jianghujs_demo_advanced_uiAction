@@ -32,7 +32,7 @@ module.exports = appInfo => {
           password: '123456',
           database: 'jianghujs_demo_advanced',
         },
-        pool: { min: 10, max: 100 },
+        pool: { min: 0, max: 100 },
         acquireConnectionTimeout: 30000,
       },
       app: true,
