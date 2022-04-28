@@ -159,10 +159,6 @@
 
     currentClickButton: {title: '新增', action: 'add'},
     editItem: {},
-    tableButtonList: [
-      {text: '修改', buttonType: 'edit', color: 'success',},
-      {text: '删除', buttonType: 'delete', color: 'error',}
-    ],
     dialogSaveInfoAction: ''
   })
 </script>
@@ -281,6 +277,7 @@
        * 保存学生
        */
       async doUpdateItem() {
+        await window.vtoast.loading("保存中");
         const id = this.editItem.id;
         delete this.editItem.id;
         await window.jianghuAxios({
@@ -293,6 +290,7 @@
             }
           }
         })
+        await window.vtoast.success("修改成功");
       },
 
       // deleteItem
