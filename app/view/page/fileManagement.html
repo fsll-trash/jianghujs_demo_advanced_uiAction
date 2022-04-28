@@ -194,6 +194,11 @@
       },
 
       // createItem
+      async prepareValidate() {
+        if (!this.$refs.form.validate()) return false;
+      },
+
+      // createItem
       async confirmCreateItemDialog() {
         return window.confirmDialog({title: '新增', content: '确定新增吗？'})
       },
@@ -201,7 +206,7 @@
       /**
        * 新增数据
        */
-    async doCreateItem() {
+      async doCreateItem() {
         await window.vtoast.loading("保存中");
         const fileDesc = this.editItem.fileDesc;
         const that = this;
