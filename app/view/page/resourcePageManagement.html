@@ -18,7 +18,7 @@
     <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
 
       <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-        <v-btn color="success" small dark class="elevation-0 mr-2" @click="handleTableButton({ text: '新增', buttonType: 'add' }, null)">新增</v-btn>
+        <v-btn color="success" small dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem', null)">新增</v-btn>
         <span class="body-2">共{{ tableData.length }}条记录</span>
       </v-col>
 
@@ -43,8 +43,11 @@
         {{ getConstantCollectionItemText('pageType', item.pageType) }}
       </template>
       <template v-slot:item.action="{ item }">
-        <v-btn small class="mr-2" :class="tableButton.color" v-for="tableButton of tableButtonList" @click="handleTableButton(tableButton, item)">
-          {{ tableButton.text }}
+        <v-btn :small="!isMobile" class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
+          修改
+        </v-btn>
+        <v-btn :small="!isMobile" class="mr-2 error" @click="doUiAction('deleteItem', item)">
+          删除
         </v-btn>
       </template>
     </v-data-table>
@@ -101,7 +104,7 @@
         </v-col>
       </v-row>
       <v-row class="justify-end pr-6">
-        <v-btn color="success" @click="saveInfo" small :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+        <v-btn color="success" @click="doUiAction(dialogSaveInfoAction)" small :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
         <v-btn class="ml-2" @click="isEditDrawerShow = false" small :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
       </v-row>
     </v-form>
@@ -112,7 +115,57 @@
 {% endblock %}
 
 {% block vue_body %}
+{% include 'common/uiAction.html' %}
+<script type="module">
+  window.registerData({
+    // 表格相关数据
+    isFormValid: true,
+    pageTab: 0,
+    showLeftMenu: window.innerWidth > 600,
+    requireRules: [ v => !!v || 'This is required' ],
+    constantCollection: {
+      accessControlTable: [{"value": "_access_control_a000", "text": "_access_control_a000"}],
+      resourceType: [{"value": "service", "text": "service"}, {"value": "sql", "text": "sql"}],
+      pageType: [{"value": "common", "text": "common"}, {"value": "showInMenu", "text": "顶部菜单"}, {"value": "dynamicInMenu", "text": "动态菜单"}, {"value": "avatarInMenu", "text": "用户菜单"}],
+    },
+    isEditDrawerShow: false,
+    searchInput: null,
+    isTableLoading: true,
+    tableDataFromBackend: [],
+    pageTableDataFromBackend: [],
+    headers: [
+      {text: "pageId", value: "pageId", width: 120},
+      {text: "actionId", value: "actionId", width: 120},
+      {text: "resourceType", value: "resourceType", width: 120},
+      {text: "accessControlTable", value: "accessControlTable", width: 120, class: 'fixed', cellClass: 'fixed'},
+      {text: "resourceHook", value: "resourceHook", width: 120},
+      {text: "appDataSchema", value: "appDataSchema", width: 120},
+      {text: "resourceData", value: "resourceData", width: 400},
+      {text: "desc", value: "desc", width: 260},
+      {text: "操作人", value: "operationByUser", width: 120},
+      {text: "操作时间", value: "operationAt", width: 250},
+      {text: '操作', value: 'action', align: 'center', sortable: false, width: 240, class: 'fixed', cellClass: 'fixed'},
+    ],
 
+    pageHeaders: [
+      {text: "pageId", value: "pageId", width: 120},
+      {text: "pageName", value: "pageName", width: 120},
+      {text: "pageType", value: "pageType", width: 120},
+      {text: "sort", value: "sort", width: 120, class: 'fixed', cellClass: 'fixed'},
+      {text: "操作人", value: "operationByUser", width: 120},
+      {text: "操作时间", value: "operationAt", width: 250},
+      {text: '操作', value: 'action', align: 'center', sortable: false, width: 140, class: 'fixed', cellClass: 'fixed'},
+    ],
+
+    currentClickButton: {title: '新增', action: 'add'},
+    editItem: {},
+    tableButtonList: [
+      {text: '修改', buttonType: 'edit', color: 'success',},
+      {text: '删除', buttonType: 'delete', color: 'error',}
+    ],
+    dialogSaveInfoAction: ''
+  })
+</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -120,53 +173,8 @@
     el: '#app',
     template: '#app-template',
     vuetify: new Vuetify(),
-    data: () => ({
-      // 表格相关数据
-      isFormValid: true,
-      pageTab: 0,
-      showLeftMenu: window.innerWidth > 600,
-      requireRules: [ v => !!v || 'This is required' ],
-      constantCollection: {
-        accessControlTable: [{"value": "_access_control_a000", "text": "_access_control_a000"}],
-        resourceType: [{"value": "service", "text": "service"}, {"value": "sql", "text": "sql"}],
-        pageType: [{"value": "common", "text": "common"}, {"value": "showInMenu", "text": "顶部菜单"}, {"value": "dynamicInMenu", "text": "动态菜单"}, {"value": "avatarInMenu", "text": "用户菜单"}],
-      },
-      isEditDrawerShow: false,
-      searchInput: null,
-      isTableLoading: true,
-      tableDataFromBackend: [],
-      pageTableDataFromBackend: [],
-      headers: [
-        {text: "pageId", value: "pageId", width: 120},
-        {text: "actionId", value: "actionId", width: 120},
-        {text: "resourceType", value: "resourceType", width: 120},
-        {text: "accessControlTable", value: "accessControlTable", width: 120, class: 'fixed', cellClass: 'fixed'},
-        {text: "resourceHook", value: "resourceHook", width: 120},
-        {text: "appDataSchema", value: "appDataSchema", width: 120},
-        {text: "resourceData", value: "resourceData", width: 400},
-        {text: "desc", value: "desc", width: 260},
-        {text: "操作人", value: "operationByUser", width: 120},
-        {text: "操作时间", value: "operationAt", width: 250},
-        {text: '操作', value: 'action', align: 'center', sortable: false, width: 240, class: 'fixed', cellClass: 'fixed'},
-      ],
-
-      pageHeaders: [
-        {text: "pageId", value: "pageId", width: 120},
-        {text: "pageName", value: "pageName", width: 120},
-        {text: "pageType", value: "pageType", width: 120},
-        {text: "sort", value: "sort", width: 120, class: 'fixed', cellClass: 'fixed'},
-        {text: "操作人", value: "operationByUser", width: 120},
-        {text: "操作时间", value: "operationAt", width: 250},
-        {text: '操作', value: 'action', align: 'center', sortable: false, width: 140, class: 'fixed', cellClass: 'fixed'},
-      ],
-
-      currentClickButton: {title: '新增', action: 'add'},
-      editItem: {},
-      tableButtonList: [
-        {text: '修改', buttonType: 'edit', color: 'success',},
-        {text: '删除', buttonType: 'delete', color: 'error',}
-      ],
-    }),
+    mixins: [window.jianghuMixins],
+    data: () => window.vueData,
     computed: {
       isMobile() {
         return window.innerWidth < 600;
@@ -189,19 +197,19 @@
     watch: {
       pageTab() {
         this.tableDataFromBackend = [];
-        this.getTableData();
+        this.doUiAction('refreshTableData');
       }
     },
     async created() {
-      await this.getTableData();
-
     },
-    mounted() {},
+    mounted() {
+      this.doUiAction('refreshTableData');
+    },
     methods: {
       /**
        * 获取表格数据
        */
-      async getTableData() {
+      async refreshTableData() {
         this.isTableLoading = true;
         const result = await window.jianghuAxios({
           data: {
@@ -215,67 +223,27 @@
         this.isTableLoading = false;
       },
 
-      /**
-       * 点击表格数据按钮
-       */
-      async handleTableButton(button, item) {
-        const buttonType = button.buttonType;
-        this.editItem = {...item};
-        switch (buttonType) {
-          case 'edit':
-            this.currentClickButton = {action: 'edit', title: '修改'};
-            this.isEditDrawerShow = true;
-            break;
-          case 'add':
-            this.currentClickButton = {action: 'add', title: '新增'};
-            this.editItem = {};
-            this.isEditDrawerShow = true;
-            break;
-          case 'delete':
-            if (await window.confirmDialog({content: "确定要删除吗？"})) {
-              window.vtoast.loading('正在删除')
-              await this.deleteItem();
-              window.vtoast.success('删除成功')
-              await this.getTableData();
-            }
-            break;
-        }
+      // startCreateItem
+      async clearItemData() {
+        this.editItem = {};
       },
-      /**
-       * 删除
-       */
-      async deleteItem() {
-        await window.jianghuAxios({
-          data: {
-            appData: {
-              pageId: 'resourcePageManagement',
-              actionId: `deleteItemOf${this.pageId}`,
-              where: { id: this.editItem.id }
-            }
-          }
-        });
+
+      async openCreateItemDialog() {
+        this.currentClickButton = {action: 'add', title: '新增'};
+        this.isEditDrawerShow = true;
+        this.dialogSaveInfoAction = 'createItem';
       },
-      /**
-       * 保存数据
-       */
-      async saveInfo() {
-        if (!this.$refs.form.validate()) return false;
-        await window.vtoast.loading("保存中");
-        if (this.currentClickButton.action === 'add') {
-          await this.insertItem();
-          await window.vtoast.success("保存成功");
-        }
-        if (this.currentClickButton.action === 'edit') {
-          await this.updateItem();
-          await window.vtoast.success("修改成功");
-        }
-        this.isEditDrawerShow = false;
-        await this.getTableData();
+
+      // createItem
+      async confirmCreateItemDialog() {
+        return window.confirmDialog({title: '新增', content: '确定新增吗？'})
       },
+
       /**
        * 新增数据
        */
-      async insertItem() {
+      async doCreateItem() {
+        await window.vtoast.loading("保存中");
         delete this.editItem.id;
         await window.jianghuAxios({
           data: {
@@ -286,13 +254,35 @@
             }
           }
         })
+        await window.vtoast.success("保存成功");
       },
+
+      async closeDrawerShow() {
+        this.isEditDrawerShow = false;
+      },
+
+      // startUpdateItem
+      async prepareItemData(item) {
+        this.editItem = {...item};
+      },
+
+      async openUpdateItemDialog() {
+        this.currentClickButton = {action: 'edit', title: '修改'};
+        this.isEditDrawerShow = true;
+        this.dialogSaveInfoAction = 'updateItem';
+      },
+
+      // updateItem
+      async confirmUpdateItemDialog() {
+        return window.confirmDialog({title: '修改', content: '确定修改吗？'});
+      },
+
       /**
        * 保存学生
        */
-      async updateItem() {
-				const id = this.editItem.id;
-				delete this.editItem.id;
+      async doUpdateItem() {
+        const id = this.editItem.id;
+        delete this.editItem.id;
         await window.jianghuAxios({
           data: {
             appData: {
@@ -304,6 +294,28 @@
           }
         })
       },
+
+      // deleteItem
+      async confirmDeleteItemDialog() {
+        return window.confirmDialog({title: '删除', content: '确定删除吗？'});
+      },
+      /**
+       * 删除
+       */
+      async doDeleteItem() {
+        window.vtoast.loading('正在删除')
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'resourcePageManagement',
+              actionId: `deleteItemOf${this.pageId}`,
+              where: { id: this.editItem.id }
+            }
+          }
+        });
+        window.vtoast.success('删除成功')
+      },
+
       getConstantCollectionItemText(key, _value) {
         const constantCollectionItemFind = this.constantCollection[key].find(({value}) => value === _value);
         if(constantCollectionItemFind) {
