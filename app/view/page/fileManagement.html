@@ -9,7 +9,7 @@
     <v-row class="ma-0 pa-xs-4 align-center flex-none pt-0 " :class="{'pa-4': !isMobile, 'pb-0': !isMobile, 'pa-2': isMobile}">
 
       <v-col cols="12" xs="4" sm="4" md="4" xl="4" class="pl-0">
-        <v-btn color="success" small dark class="elevation-0 mr-2" @click="handleTableButton({ text: '新增', buttonType: 'add' }, null)">新增
+        <v-btn color="success" small dark class="elevation-0 mr-2" @click="doUiAction('startCreateItem', null)">新增
         </v-btn>
         <span class="body-2">共{{ tableData.length }}条记录</span>
       </v-col>
@@ -32,11 +32,16 @@
                   mobile-breakpoint="0"
                   class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
       <template v-slot:item.downloadPath="{ item }">
+        <v-btn small class="success" @click="doUiAction('downloadFileByBase64', item)">base64</v-btn>
+        <v-btn small class="ml-2 success" @click="doUiAction('downloadFileByStream', item)">stream</v-btn>
         <a :href="downloadPrefix + item.downloadPath" target="_blank">{{item.downloadPath}}</a>
       </template>
       <template v-slot:item.action="{ item }">
-        <v-btn small class="mr-2" :class="tableButton.color" v-for="tableButton of tableButtonList" @click="handleTableButton(tableButton, item)">
-          {{ tableButton.text }}
+        <v-btn :small="!isMobile" class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
+          修改
+        </v-btn>
+        <v-btn :small="!isMobile" class="mr-2 error" @click="doUiAction('deleteItem', item)">
+          删除
         </v-btn>
       </template>
     </v-data-table>
@@ -92,7 +97,7 @@
         </template>
       </v-row>
       <v-row class="justify-end pr-6">
-        <v-btn color="success" small @click="saveInfo" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
+        <v-btn color="success" small @click="doUiAction(dialogSaveInfoAction)" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mb-2': isMobile, 'mr-4': isMobile}">保存</v-btn>
         <v-btn class="ml-2" small @click="isEditDrawerShow = false" :style="{width: isMobile ? 'calc(100% - 45px)' : '200px'}" :class="{'mr-4': isMobile}">取消</v-btn>
       </v-row>
     </v-form>
@@ -103,7 +108,37 @@
 {% endblock %}
 
 {% block vue_body %}
+{% include 'common/uiAction.html' %}
+<script type="module">
+  window.registerData({
+    // 表格相关数据
+    isFormValid: true,
+    requireRules: [ v => !!v || 'This is required' ],
+    isEditDrawerShow: false,
+    searchInput: null,
+    isTableLoading: true,
+    tableDataFromBackend: [],
+    headers: [
+      {text: "文件ID", value: "fileId", width: 120, required: true, class: 'fixed', cellClass: 'fixed'},
+      {text: "文件存储位置", value: "fileDirectory", width: 120, required: true},
+      {text: "文件名", value: "filename", width: 120},
+      {text: "文件保存名", value: "filenameStorage", width: 120},
+      {text: "文件下载路径", value: "downloadPath", width: 650},
+      {text: "文件大小", value: "binarySize", width: 120},
+      {text: "文件描述", value: "fileDesc", width: 120},
+      {text: "操作人", value: "operationByUser", width: 120},
+      {text: "操作时间", value: "operationAt", width: 250},
+      {text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'}
+    ],
 
+    currentClickButton: {title: '新增', action: 'add'},
+    editItem: {},
+    inputFile: null,
+    downloadPrefix: `${window.location.origin}/<$ ctx.app.config.appId $>/upload`,
+    uploadType: 'uploadByBase64',
+    dialogSaveInfoAction: ''
+  })
+</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -111,37 +146,8 @@
     el: '#app',
     template: '#app-template',
     vuetify: new Vuetify(),
-    data: () => ({
-      // 表格相关数据
-      isFormValid: true,
-      requireRules: [ v => !!v || 'This is required' ],
-      isEditDrawerShow: false,
-      searchInput: null,
-      isTableLoading: true,
-      tableDataFromBackend: [],
-      headers: [
-        {text: "文件ID", value: "fileId", width: 120, required: true, class: 'fixed', cellClass: 'fixed'},
-        {text: "文件存储位置", value: "fileDirectory", width: 120, required: true},
-        {text: "文件名", value: "filename", width: 120},
-        {text: "文件保存名", value: "filenameStorage", width: 120},
-        {text: "文件下载路径", value: "downloadPath", width: 650},
-        {text: "文件大小", value: "binarySize", width: 120},
-        {text: "文件描述", value: "fileDesc", width: 120},
-        {text: "操作人", value: "operationByUser", width: 120},
-        {text: "操作时间", value: "operationAt", width: 250},
-        {text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'}
-      ],
-
-      currentClickButton: {title: '新增', action: 'add'},
-      editItem: {},
-      tableButtonList: [
-        {text: '修改', buttonType: 'edit', color: 'success',},
-        {text: '删除', buttonType: 'delete', color: 'error',},
-      ],
-      inputFile: null,
-      downloadPrefix: `${window.location.origin}/<$ ctx.app.config.appId $>/upload`,
-      uploadType: 'uploadByBase64',
-    }),
+    mixins: [window.jianghuMixins],
+    data: () => window.vueData,
     computed: {
       isMobile() {
         return window.innerWidth < 600;
@@ -152,15 +158,15 @@
     },
     watch: {},
     async created() {
-      await this.getTableData();
     },
     mounted() {
+      this.doUiAction('refreshTableData');
     },
     methods: {
       /**
        * 获取表格数据
        */
-      async getTableData() {
+      async refreshTableData() {
         this.isTableLoading = true;
         const result = await window.jianghuAxios({
           data: {
@@ -176,36 +182,114 @@
         this.isTableLoading = false;
       },
 
+      // startCreateItem
+      async clearItemData() {
+        this.editItem = {};
+      },
+
+      async openCreateItemDialog() {
+        this.currentClickButton = {action: 'add', title: '新增'};
+        this.isEditDrawerShow = true;
+        this.dialogSaveInfoAction = 'createItem';
+      },
+
+      // createItem
+      async confirmCreateItemDialog() {
+        return window.confirmDialog({title: '新增', content: '确定新增吗？'})
+      },
+
       /**
-       * 点击表格数据按钮
+       * 新增数据
        */
-      async handleTableButton(button, item) {
-        const buttonType = button.buttonType;
-        this.editItem = {...item};
-        switch (buttonType) {
-          case 'edit':
-            this.currentClickButton = {action: 'edit', title: '修改'};
-            this.isEditDrawerShow = true;
-            break;
-          case 'add':
-            this.currentClickButton = {action: 'add', title: '新增'};
-            this.editItem = {};
-            this.isEditDrawerShow = true;
-            break;
-          case 'delete':
-            if (await window.confirmDialog({content: "确定要删除吗？"})) {
-              window.vtoast.loading('正在删除')
-              await this.deleteFile();
-              window.vtoast.success('删除成功')
-              await this.getTableData();
+    async doCreateItem() {
+        await window.vtoast.loading("保存中");
+        const fileDesc = this.editItem.fileDesc;
+        const that = this;
+        const uploadType = this.uploadType;
+        const file = this.inputFile
+        window.vtoast.loading("上传中");
+        if (uploadType === 'uploadByBase64') {
+          window.vtoast.loading(`${file.name} 上传进度: 0.00%`);
+          await window.jianghuAxios.httpUploadByBase64({
+            fileDesc,
+            file,
+            fileDirectory: 'testFile',
+            onProgress: (total, loaded) => {
+              const progress = Number((loaded * 100 / total).toFixed(2));
+              window.vtoast.loading(`${file.name} 上传进度: ${progress}%`);
+              if (loaded === total) {
+                window.vtoast.success(`${file.name} 上传进度: 100%`);
+              }
             }
-            break;
+          })
+        } else if (uploadType === 'uploadByStream') {
+          window.vtoast.loading(`${file.name} 上传进度: 0.00%`);
+          await window.jianghuAxios.httpUploadByStream({
+            fileDesc,
+            file,
+            fileDirectory: 'testFile',
+            onProgress: (total, loaded) => {
+              const progress = Number((loaded * 100 / total).toFixed(2));
+              window.vtoast.loading(`${file.name} 上传进度: ${progress}%`);
+              if (loaded === total) {
+                window.vtoast.success(`${file.name} 上传进度: 100%`);
+              }
+            }
+          })
+        } else {
+          window.vtoast.fail("未知的上传类型");
         }
       },
+
+      // startUpdateItem
+      async prepareItemData(item) {
+        this.editItem = {...item};
+      },
+
+      async openUpdateItemDialog() {
+        this.currentClickButton = {action: 'edit', title: '修改'};
+        this.isEditDrawerShow = true;
+        this.dialogSaveInfoAction = 'updateItem';
+      },
+
+      // updateItem
+      async confirmUpdateItemDialog() {
+        return window.confirmDialog({title: '修改', content: '确定修改吗？'});
+      },
+
+      /**
+       * 保存学生
+       */
+      async doUpdateItem() {
+        await window.vtoast.loading("保存中");
+        const id = this.editItem.id;
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'fileManagement',
+              actionId: 'updateItem',
+              actionData: {fileDesc: this.editItem.fileDesc},
+              where: {id}
+            }
+          }
+        })
+        await window.vtoast.success("修改成功");
+      },
+      async closeDrawerShow() {
+        this.isEditDrawerShow = false;
+      },
+
+      // deleteItem
+      async confirmDeleteItemDialog() {
+        return window.confirmDialog({title: '删除', content: '确定删除吗？'});
+      },
+
       /**
        * 删除数据
        */
-      async deleteFile() {
+      // TODO::只是删除了 _file表中的数据，并没有删除文件
+      async doDeleteItem() {
+        window.vtoast.loading('正在删除')
         await window.jianghuAxios({
           data: {
             appData: {
@@ -215,113 +299,43 @@
             }
           }
         });
+        window.vtoast.success('删除成功')
       },
       /**
-       * 保存数据
+       * 文件base64下载
        */
-      async saveInfo() {
-        if (!this.$refs.form.validate()) return false;
-        await window.vtoast.loading("保存中");
-        if (this.currentClickButton.action === 'add') {
-          await this.insertFile();
-          await window.vtoast.success("保存成功");
-        }
-        if (this.currentClickButton.action === 'edit') {
-          await this.updateFile();
-          await window.vtoast.success("修改成功");
-        }
-        this.isEditDrawerShow = false;
-        await this.getTableData();
-      },
-      /**
-       * 文件base64上传
-       */
-      async uploadByBase64(fileBase64, filename, fileDesc) {
-        await window.jianghuAxios({
-          data: {
-            appData: {
-              pageId: 'allPage',
-              actionId: 'uploadByBase64',
-              actionData: {
-                fileDirectory: 'testFile',
-                filename,
-                fileBase64,
-                fileDesc
-              },
+      // TODO::下载未成功
+      async downloadFileByBase64({downloadPath, filename}) {
+        window.vtoast.loading(`${filename} 下载进度: 0%`);
+        const base64 = await window.jianghuAxios.httpDownloadByBase64({
+          downloadPath,
+          filename,
+          onProgress: (total, loaded) => {
+            const progress = Number((loaded * 100 / total).toFixed(2));
+            window.vtoast.loading(`${filename} 下载进度: ${progress}%`);
+            if (total === loaded) {
+              window.vtoast.success("下载完成");
             }
           }
         })
-        window.vtoast.success("保存成功");
-      },
-      /**
-       * 文件流上传
-       */
-      async uploadByStream(fileBase64, filename, fileDesc) {
-        const forms = new FormData();
-        const packageId = `${Date.now()}_${_.random(1000000, 9999999)}`;
-        const data = {
-          packageId,
-          packageType: 'httpRequest',
-          appData: {
-            appId: `${window.appInfo.appId}`,
-            pageId: 'allPage',
-            actionId: 'uploadByStream',
-            userAgent: 'demo_userAgent',
-            authToken: localStorage.getItem(`${window.appInfo.appId}_authToken`),
-            actionData: {
-              fileDirectory: 'testFile',
-              filename,
-              fileDesc
-            }
-          }
-        };
-        forms.append('files', this.inputFile);
-        forms.append('body', JSON.stringify(data));
-        const configs = {
-          headers: {'Content-Type': 'multipart/form-data'},
-        };
-        await axios.post(`/${window.appInfo.appId}/resource`, forms, configs)
-        window.vtoast.success("保存成功");
-      },
-      /**
-       * 新增数据
-       */
-      async insertFile() {
-        const fileDesc = this.editItem.fileDesc;
-        const _this = this;
-        const uploadType = this.uploadType;
-        const reader = new FileReader();
-        reader.readAsDataURL(this.inputFile);
-        window.vtoast.loading("上传中");
-        return new Promise((resolve, reject) => {
-          reader.onload = async function (e) {
-            const fileBase64 = e.target.result;
-            const filename = _this.inputFile.name;
-            if (uploadType === 'uploadByBase64') {
-              await _this.uploadByBase64(fileBase64, filename, fileDesc);
-              resolve();
-            } else if (uploadType === 'uploadByStream') {
-              await _this.uploadByStream(fileBase64, filename, fileDesc);
-              resolve();
-            } else {
-              window.vtoast.fail("未知的上传类型");
-              resolve();
-            }
-          };
+        await window.jianghuAxios.downloadBase64ToChrome({
+          base64,
+          filename: 'base64Download'
         })
       },
       /**
-       * 保存学生
+       * 文件stream下载
        */
-      async updateFile() {
-        const id = this.editItem.id;
-        await window.jianghuAxios({
-          data: {
-            appData: {
-              pageId: 'fileManagement',
-              actionId: 'updateItem',
-              actionData: {fileDesc: this.editItem.fileDesc},
-              where: {id}
+      async downloadFileByStream({downloadPath, filename}) {
+        window.vtoast.loading(`${filename} 下载进度: 0%`);
+        await window.jianghuAxios.httpDownloadByStream({
+          downloadPath,
+          filename,
+          onProgress: (total, loaded) => {
+            const progress = Number((loaded * 100 / total).toFixed(2));
+            window.vtoast.loading(`${filename} 下载进度: ${progress}%`);
+            if (total === loaded) {
+              window.vtoast.success("下载完成");
             }
           }
         })
