@@ -304,7 +304,6 @@
       /**
        * 文件base64下载
        */
-      // TODO::下载未成功
       async downloadFileByBase64({downloadPath, filename}) {
         window.vtoast.loading(`${filename} 下载进度: 0%`);
         const base64 = await window.jianghuAxios.httpDownloadByBase64({
@@ -326,6 +325,7 @@
       /**
        * 文件stream下载
        */
+      // TODO::下载未成功时无错误响应
       async downloadFileByStream({downloadPath, filename}) {
         window.vtoast.loading(`${filename} 下载进度: 0%`);
         await window.jianghuAxios.httpDownloadByStream({
