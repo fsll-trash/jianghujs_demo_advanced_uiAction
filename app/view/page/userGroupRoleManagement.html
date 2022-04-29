@@ -99,6 +99,10 @@
                       checkbox-color="success"
                       mobile-breakpoint="0"
                       class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
+
+          <template v-slot:item.roleId="{ item }">
+            {{ (constantCollection.userType.find(({value}) => value === item.roleId) || {}).text }}
+          </template>
           <template v-slot:item.action="{ item }">
             <v-btn :small="!isMobile" class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
               修改
@@ -254,7 +258,7 @@
       group: [],
       role: [],
       userStatus: [{value: 'active', text: '活跃'}, {value: 'banned', text: '关闭'}],
-      userType: [{value: 'common', text: '管理员'}, {value: 'staff', text: '职工'}, {value: 'student', text: '学员'}],
+      userType: [{value: 'common', text: '管理员'}, {value: 'staff', text: '职工'},  {value: 'teacher', text: '老师'}, {value: 'student', text: '学员'}],
     },
     isEditDrawerShow: false,
     searchInput: null,
