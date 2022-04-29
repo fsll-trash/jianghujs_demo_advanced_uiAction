@@ -39,8 +39,8 @@
       {{ item.operationAt && dayjs(item.operationAt).format('YYYY-MM-DD HH:mm:ss') }}
     </template>
     <template v-slot:item.option="{ item }">
-        <v-btn small class="mr-2" color="success" @click="doUiAction('viewRecordHistory', item)">
-          <v-badge color="red" :content="item.count">
+        <v-btn small class="mr-2" color="success" :disabled="item.count === 0" @click="doUiAction('viewRecordHistory', item)">
+          <v-badge color="red" :content="item.count" :value="item.count">
             查看数据版本
           </v-badge>
         </v-btn>
