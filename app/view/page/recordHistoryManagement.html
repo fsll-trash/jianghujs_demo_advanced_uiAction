@@ -160,11 +160,14 @@ new Vue({
   },
   mounted() {},
   methods: {
+    async openTableLoading() {
+      this.isTableLoading = true;
+    },
+
     /**
      * 获取表格数据
      */
     async refreshTableData() {
-      this.isTableLoading = true;
       if (this.currentHistoryDataType === 'onUse') {
         const result = await window.jianghuAxios({
           data: {
@@ -194,9 +197,9 @@ new Vue({
         });
         this.tableDataFromBackend = result.data.appData.rows;
       }
+    },
 
-      this.computeHeader();
-
+    async closeTableLoading() {
       this.isTableLoading = false;
     },
 
