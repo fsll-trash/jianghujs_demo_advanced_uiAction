@@ -38,10 +38,14 @@
       </template>
       <template v-slot:item.action="{ item }">
         <v-btn small class="mr-2" color="success" @click="doUiAction('startUpdateItem', item)">修改</v-btn>
-        <v-btn small class="mr-2" color="primary" v-if="item.userStatus !== 'active'" @click="handleTableButton({ text: '激活用户', buttonType: 'activeUserStatus' }, item)">
+        <v-btn small class="mr-2" color="primary"
+               v-if="item.userStatus !== 'active'"
+               @click="doUiAction('activeUserStatus', item)">
           激活用户
         </v-btn>
-        <v-btn small class="mr-2" color="error" v-if="item.userStatus === 'active'" @click="doUiAction('updateUserStatus', item)">
+        <v-btn small class="mr-2" color="error"
+               v-if="item.userStatus === 'active'"
+               @click="doUiAction('bannedUserStatus', item)">
           禁用用户
         </v-btn>
         <v-btn small class="mr-2" color="error" v-if="item.userStatus === 'active'" @click="doUiAction('startResetPassword', item)">
@@ -253,28 +257,50 @@
         await window.vtoast.success("修改成功");
       },
 
-      // deleteItem
-      async confirmDeleteItemDialog() {
-        return window.confirmDialog({title: '删除', content: '确定删除吗？'});
+      async confirmActiveUserStatusDialog() {
+        return window.confirmDialog({ title: '激活', content: `确定激活吗？`});
       },
 
       /**
-       * 删除用户
+       * 激活用户
        */
-      async doUpdateUserStatus() {
-        await window.vtoast.loading("删除中");
-        const userStatus = _.get({activeUserStatus: 'active', bannedUserStatus: 'banned'}, 'bannedUserStatus');
+      async doActiveUserStatus(item) {
+        const { userId } = item;
+        await window.vtoast.loading('正在激活');
         await window.jianghuAxios({
           data: {
             appData: {
               pageId: 'userManagement',
               actionId: 'updateItem',
-              actionData: {userStatus},
-              where: {id: this.editItem.id}
+              actionData: { userStatus: 'active' },
+              where: { userId }
             }
           }
         });
-        await window.vtoast.success("删除成功");
+        await window.vtoast.success(`激活成功`);
+      },
+
+      async confirmBannedUserStatusDialog() {
+        return window.confirmDialog({ title: '禁用', content: `确定禁用吗？`});
+      },
+
+      /**
+       * 禁用用户
+       */
+      async doBannedUserStatus(item) {
+        const { userId } = item;
+        await window.vtoast.loading('正在禁用');
+        await window.jianghuAxios({
+          data: {
+            appData: {
+              pageId: 'userManagement',
+              actionId: 'updateItem',
+              actionData: { userStatus: 'banned' },
+              where: { userId }
+            }
+          }
+        });
+        await window.vtoast.success(`禁用成功`);
       },
 
 
@@ -289,62 +315,7 @@
         this.isEditDrawerPermanent = true;
         return window.confirmDialog({title: '修改用户密码', content: '确定修改用户密码吗？'});
       },
-      /**
-       * 点击表格数据按钮
-       */
-      async handleTableButton({text, buttonType}, item) {
-        switch (buttonType) {
-          case 'edit':
-            this.currentClickButton = {action: 'edit', title: '修改'};
-            this.editItem = {...item};
-            this.isEditDrawerShow = true;
-            break;
-          case 'add':
-            this.currentClickButton = {action: 'add', title: '新增'};
-            this.editItem = Object.assign({}, this.defaultItem);
-            this.isEditDrawerShow = true;
-            break;
-          case 'resetUserPassword':
-            this.currentClickButton = {action: 'resetUserPassword', title: '修改用户密码'};
-            this.editItem = {...item};
-            this.isEditDrawerShow = true;
-            break;
-          case 'activeUserStatus':
-          case 'bannedUserStatus':
-            const dialogDone = await window.confirmDialog({title: text, content: `确定${text}吗？`});
-            if (dialogDone) {
-              await window.vtoast.loading(text);
-              this.editItem = {...item};
-              const userStatus = _.get({activeUserStatus: 'active', bannedUserStatus: 'banned'}, buttonType);
-              await this.updateUserStatus({userStatus});
-              await window.vtoast.success(`${text}成功`);
-              await this.getTableData();
-            }
-            break;
-        }
-      },
-      /**
-       * 保存数据
-       */
-      async saveInfo() {
-        if (!this.$refs.form.validate()) return false;
-        if (this.currentClickButton.action === 'add') {
-          await window.vtoast.loading("保存中");
-          await this.insertUser();
-          await window.vtoast.success("保存成功");
-        }
-        if (this.currentClickButton.action === 'edit') {
-          await window.vtoast.loading("保存中");
-          await this.updateUser();
-          await window.vtoast.success("修改成功");
-        }
-        if (this.currentClickButton.action === 'resetUserPassword') {
-          const success = await this.resetUserPassword();
-          if(success) await window.vtoast.success("修改密码成功");
-        }
-        await this.getTableData();
-        this.isEditDrawerShow = false;
-      },
+
       async doResetUserPassword() {
         this.isEditDrawerPermanent = false;
         const {userId, clearTextPassword} = this.editItem;
