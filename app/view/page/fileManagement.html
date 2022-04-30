@@ -32,9 +32,7 @@
                   mobile-breakpoint="0"
                   class="elevation-0 mt-0 mb-xs-4 flex-fill d-flex flex-column">
       <template v-slot:item.downloadPath="{ item }">
-        <v-btn small class="success" @click="doUiAction('downloadFileByBase64', item)">base64</v-btn>
-        <v-btn small class="ml-2 success" @click="doUiAction('downloadFileByStream', item)">stream</v-btn>
-        <a :href="downloadPrefix + item.downloadPath" target="_blank">{{item.downloadPath}}</a>
+        <a href="javascript:;" @click="doUiAction('downloadFileByStream', item)">{{item.downloadPath}}</a>
       </template>
       <template v-slot:item.action="{ item }">
         <v-btn :small="!isMobile" class="mr-2 success" @click="doUiAction('startUpdateItem', item)">
@@ -59,12 +57,6 @@
       </v-row>
       <v-row class="pa-0 ma-0 pa-xs-4 pb-xs-4 flex-none" v-if="isEditDrawerShow">
         <template v-if="currentClickButton.action === 'add'">
-          <v-col cols="12" sm="12" md="12" xl="12" class="pa-xs-0 pb-xs-4 pb-3">
-            <v-radio-group class="mt-0" v-model="uploadType" row>
-              <v-radio label="base64上传" value="uploadByBase64" ></v-radio>
-              <v-radio label="文件流上传" value="uploadByStream" ></v-radio>
-            </v-radio-group>
-          </v-col>
           <v-col cols="12" sm="12" md="6" xl="6" class="pa-xs-0 pb-xs-4 pb-3">
             <v-file-input v-model="inputFile" class="cus-v-input mr-2" dense outlined chips label="请选择文件" ></v-file-input>
           </v-col>
@@ -135,7 +127,6 @@
     editItem: {},
     inputFile: null,
     downloadPrefix: `${window.location.origin}/<$ ctx.app.config.appId $>/upload`,
-    uploadType: 'uploadByBase64',
     dialogSaveInfoAction: ''
   })
 </script>
@@ -210,25 +201,8 @@
         await window.vtoast.loading("保存中");
         const fileDesc = this.editItem.fileDesc;
         const that = this;
-        const uploadType = this.uploadType;
         const file = this.inputFile
-        window.vtoast.loading("上传中");
-        if (uploadType === 'uploadByBase64') {
-          window.vtoast.loading(`${file.name} 上传进度: 0.00%`);
-          await window.jianghuAxios.httpUploadByBase64({
-            fileDesc,
-            file,
-            fileDirectory: 'testFile',
-            onProgress: (total, loaded) => {
-              const progress = Number((loaded * 100 / total).toFixed(2));
-              window.vtoast.loading(`${file.name} 上传进度: ${progress}%`);
-              if (loaded === total) {
-                window.vtoast.success(`${file.name} 上传进度: 100%`);
-              }
-            }
-          })
-        } else if (uploadType === 'uploadByStream') {
-          window.vtoast.loading(`${file.name} 上传进度: 0.00%`);
+        window.vtoast.loading(`${file.name} 上传进度: 0.00%`);
           await window.jianghuAxios.httpUploadByStream({
             fileDesc,
             file,
@@ -241,9 +215,6 @@
               }
             }
           })
-        } else {
-          window.vtoast.fail("未知的上传类型");
-        }
       },
 
       // startUpdateItem
@@ -307,33 +278,12 @@
         window.vtoast.success('删除成功')
       },
       /**
-       * 文件base64下载
-       */
-      async downloadFileByBase64({downloadPath, filename}) {
-        window.vtoast.loading(`${filename} 下载进度: 0%`);
-        const base64 = await window.jianghuAxios.httpDownloadByBase64({
-          downloadPath,
-          filename,
-          onProgress: (total, loaded) => {
-            const progress = Number((loaded * 100 / total).toFixed(2));
-            window.vtoast.loading(`${filename} 下载进度: ${progress}%`);
-            if (total === loaded) {
-              window.vtoast.success("下载完成");
-            }
-          }
-        })
-        await window.jianghuAxios.downloadBase64ToChrome({
-          base64,
-          filename: 'base64Download'
-        })
-      },
-      /**
        * 文件stream下载
        */
       // TODO::下载未成功时无错误响应
       async downloadFileByStream({downloadPath, filename}) {
         window.vtoast.loading(`${filename} 下载进度: 0%`);
-        await window.jianghuAxios.httpDownloadByStream({
+        const buffer = await window.jianghuAxios.httpDownloadByStream({
           downloadPath,
           filename,
           onProgress: (total, loaded) => {
@@ -344,6 +294,7 @@
             }
           }
         })
+        window.jianghuAxios.downloadBufferToChrome({ buffer, filename });
       }
     }
   })
