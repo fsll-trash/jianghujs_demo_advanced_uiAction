@@ -92,8 +92,15 @@
 
 {% block vue_body %}
 {% include 'common/uiAction.html' %}
+{% include 'layout/jhLayout.html' %}
+{% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
-  window.registerData({
+new Vue({
+  el: '#app',
+  template: '#app-template',
+  vuetify: new Vuetify(),
+  mixins: [window.jianghuUiActionMixins],
+  data: {
     tab: null,
     // 表格相关数据
     isFormValid: true,
@@ -126,17 +133,7 @@
     isEditDrawerPermanent: false,
     isEditDrawerShow: false,
     drawerTableData: [],
-  })
-</script>
-{% include 'layout/jhLayout.html' %}
-{% include 'common/resetTableMaxHeight.html' %}
-<script type="module">
-new Vue({
-  el: '#app',
-  template: '#app-template',
-  vuetify: new Vuetify(),
-  mixins: [window.jianghuUiActionMixins],
-  data: () => window.vueData,
+  },
   computed: {
     isMobile() {
       return window.innerWidth < 600;

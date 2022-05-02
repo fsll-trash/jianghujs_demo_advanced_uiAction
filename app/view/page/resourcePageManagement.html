@@ -116,52 +116,6 @@
 
 {% block vue_body %}
 {% include 'common/uiAction.html' %}
-<script type="module">
-  window.registerData({
-    // 表格相关数据
-    isFormValid: true,
-    pageTab: 0,
-    showLeftMenu: window.innerWidth > 600,
-    requireRules: [ v => !!v || 'This is required' ],
-    constantCollection: {
-      accessControlTable: [{"value": "_access_control_a000", "text": "_access_control_a000"}],
-      resourceType: [{"value": "service", "text": "service"}, {"value": "sql", "text": "sql"}],
-      pageType: [{"value": "common", "text": "common"}, {"value": "showInMenu", "text": "顶部菜单"}, {"value": "dynamicInMenu", "text": "动态菜单"}, {"value": "avatarInMenu", "text": "用户菜单"}],
-    },
-    isEditDrawerShow: false,
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    pageTableDataFromBackend: [],
-    headers: [
-      {text: "pageId", value: "pageId", width: 120},
-      {text: "actionId", value: "actionId", width: 120},
-      {text: "resourceType", value: "resourceType", width: 120},
-      {text: "accessControlTable", value: "accessControlTable", width: 120, class: 'fixed', cellClass: 'fixed'},
-      {text: "resourceHook", value: "resourceHook", width: 120},
-      {text: "appDataSchema", value: "appDataSchema", width: 120},
-      {text: "resourceData", value: "resourceData", width: 400},
-      {text: "desc", value: "desc", width: 260},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 240, class: 'fixed', cellClass: 'fixed'},
-    ],
-
-    pageHeaders: [
-      {text: "pageId", value: "pageId", width: 120},
-      {text: "pageName", value: "pageName", width: 120},
-      {text: "pageType", value: "pageType", width: 120},
-      {text: "sort", value: "sort", width: 120, class: 'fixed', cellClass: 'fixed'},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 140, class: 'fixed', cellClass: 'fixed'},
-    ],
-
-    currentClickButton: {title: '新增', action: 'add'},
-    editItem: {},
-    dialogSaveInfoAction: ''
-  })
-</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -170,7 +124,50 @@
     template: '#app-template',
     vuetify: new Vuetify(),
     mixins: [window.jianghuUiActionMixins],
-    data: () => window.vueData,
+    data: {
+      // 表格相关数据
+      isFormValid: true,
+      pageTab: 0,
+      showLeftMenu: window.innerWidth > 600,
+      requireRules: [ v => !!v || 'This is required' ],
+      constantCollection: {
+        accessControlTable: [{"value": "_access_control_a000", "text": "_access_control_a000"}],
+        resourceType: [{"value": "service", "text": "service"}, {"value": "sql", "text": "sql"}],
+        pageType: [{"value": "common", "text": "common"}, {"value": "showInMenu", "text": "顶部菜单"}, {"value": "dynamicInMenu", "text": "动态菜单"}, {"value": "avatarInMenu", "text": "用户菜单"}],
+      },
+      isEditDrawerShow: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      pageTableDataFromBackend: [],
+      headers: [
+        {text: "pageId", value: "pageId", width: 120},
+        {text: "actionId", value: "actionId", width: 120},
+        {text: "resourceType", value: "resourceType", width: 120},
+        {text: "accessControlTable", value: "accessControlTable", width: 120, class: 'fixed', cellClass: 'fixed'},
+        {text: "resourceHook", value: "resourceHook", width: 120},
+        {text: "appDataSchema", value: "appDataSchema", width: 120},
+        {text: "resourceData", value: "resourceData", width: 400},
+        {text: "desc", value: "desc", width: 260},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 240, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      pageHeaders: [
+        {text: "pageId", value: "pageId", width: 120},
+        {text: "pageName", value: "pageName", width: 120},
+        {text: "pageType", value: "pageType", width: 120},
+        {text: "sort", value: "sort", width: 120, class: 'fixed', cellClass: 'fixed'},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 140, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      dialogSaveInfoAction: ''
+    },
     computed: {
       isMobile() {
         return window.innerWidth < 600;

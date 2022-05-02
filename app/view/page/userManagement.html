@@ -102,38 +102,6 @@
 
 {% block vue_body %}
 {% include 'common/uiAction.html' %}
-<script type="module">
-  window.registerData({
-    // 表格相关数据
-    isFormValid: true,
-    showLeftMenu: window.innerWidth > 600,
-    requireRules: [v => !!v || 'This is required'],
-    constantCollection: {
-      userStatus: [{value: 'active', text: '活跃'}, {value: 'banned', text: '关闭'}],
-      userType: [{value: 'common', text: '管理员'}, {value: 'staff', text: '职工'}, {value: 'student', text: '学员'}],
-    },
-    isEditDrawerShow: false,
-    isEditDrawerPermanent: false,
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      {text: "用户ID[登陆]", value: "userId", width: 120, class: 'fixed', cellClass: 'fixed'},
-      {text: "用户名", value: "username", width: 140},
-      {text: "用户类型", value: "userType", width: 120},
-      {text: "用户状态", value: "userStatus", width: 120},
-      {text: "初始密码", value: "clearTextPassword", width: 120},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 300, class: 'fixed', cellClass: 'fixed'},
-    ],
-
-    currentClickButton: {title: '新增', action: 'add'},
-    editItem: {},
-    defaultItem: {userType: 'common', userStatus: 'active'},
-    dialogSaveInfoAction: ''
-  })
-</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 
@@ -143,7 +111,36 @@
     template: '#app-template',
     vuetify: new Vuetify(),
     mixins: [window.jianghuUiActionMixins],
-    data: () => window.vueData,
+    data: {
+      // 表格相关数据
+      isFormValid: true,
+      showLeftMenu: window.innerWidth > 600,
+      requireRules: [v => !!v || 'This is required'],
+      constantCollection: {
+        userStatus: [{value: 'active', text: '活跃'}, {value: 'banned', text: '关闭'}],
+        userType: [{value: 'common', text: '管理员'}, {value: 'staff', text: '职工'}, {value: 'student', text: '学员'}],
+      },
+      isEditDrawerShow: false,
+      isEditDrawerPermanent: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        {text: "用户ID[登陆]", value: "userId", width: 120, class: 'fixed', cellClass: 'fixed'},
+        {text: "用户名", value: "username", width: 140},
+        {text: "用户类型", value: "userType", width: 120},
+        {text: "用户状态", value: "userStatus", width: 120},
+        {text: "初始密码", value: "clearTextPassword", width: 120},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 300, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      defaultItem: {userType: 'common', userStatus: 'active'},
+      dialogSaveInfoAction: ''
+    },
     computed: {
       isMobile() {
         return window.innerWidth < 600;

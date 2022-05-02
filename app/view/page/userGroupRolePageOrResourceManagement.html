@@ -101,54 +101,6 @@
 
 {% block vue_body %}
 {% include 'common/uiAction.html' %}
-<script type="module">
-  window.registerData({
-    // 表格相关数据
-    isFormValid: true,
-    pageTab: 0,
-    showLeftMenu: window.innerWidth > 600,
-    requireRules: [ v => !!v || 'This is required' ],
-    constantCollection: {
-      group: [{"value": "*", "text": "通配符*"}],
-      role: [{"value": "*", "text": "通配符*"}],
-      resource: [{"value": "*", "text": "通配符*"}],
-      page: [{"value": "*", "text": "通配符*"}],
-      allowOrDeny: [{"value": "allow", "text": "Allow"}, {"value": "deny", "text": "Deny"}],
-    },
-    isEditDrawerShow: false,
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    pageTableDataFromBackend: [],
-    headers: [
-      {text: "用户ID/通配符(*)", value: "user", width: 120},
-      {text: "GroupID/通配符(*)", value: "group", width: 120},
-      {text: "RoleId/通配符(*)", value: "role", width: 120},
-      {text: "ResourceId/通配符(*)", value: "resource", width: 120, class: 'fixed', cellClass: 'fixed'},
-      {text: "权限状态", value: "allowOrDeny", width: 120},
-      {text: "说明", value: "desc", width: 420},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 180, class: 'fixed', cellClass: 'fixed'},
-    ],
-
-    pageHeaders: [
-      {text: "用户ID/通配符(*)", value: "user", width: 120},
-      {text: "GroupID/通配符(*)", value: "group", width: 120},
-      {text: "RoleId/通配符(*)", value: "role", width: 120},
-      {text: "PageId/通配符(*)", value: "page", width: 120, class: 'fixed', cellClass: 'fixed'},
-      {text: "权限状态", value: "allowOrDeny", width: 120},
-      {text: "说明", value: "desc", width: 420},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 180, class: 'fixed', cellClass: 'fixed'},
-    ],
-
-    currentClickButton: {title: '新增', action: 'add'},
-    editItem: {},
-    dialogSaveInfoAction: ''
-  })
-</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -157,7 +109,52 @@
     template: '#app-template',
     vuetify: new Vuetify(),
     mixins: [window.jianghuUiActionMixins],
-    data: () => window.vueData,
+    data: {
+      // 表格相关数据
+      isFormValid: true,
+      pageTab: 0,
+      showLeftMenu: window.innerWidth > 600,
+      requireRules: [ v => !!v || 'This is required' ],
+      constantCollection: {
+        group: [{"value": "*", "text": "通配符*"}],
+        role: [{"value": "*", "text": "通配符*"}],
+        resource: [{"value": "*", "text": "通配符*"}],
+        page: [{"value": "*", "text": "通配符*"}],
+        allowOrDeny: [{"value": "allow", "text": "Allow"}, {"value": "deny", "text": "Deny"}],
+      },
+      isEditDrawerShow: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      pageTableDataFromBackend: [],
+      headers: [
+        {text: "用户ID/通配符(*)", value: "user", width: 120},
+        {text: "GroupID/通配符(*)", value: "group", width: 120},
+        {text: "RoleId/通配符(*)", value: "role", width: 120},
+        {text: "ResourceId/通配符(*)", value: "resource", width: 120, class: 'fixed', cellClass: 'fixed'},
+        {text: "权限状态", value: "allowOrDeny", width: 120},
+        {text: "说明", value: "desc", width: 420},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 180, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      pageHeaders: [
+        {text: "用户ID/通配符(*)", value: "user", width: 120},
+        {text: "GroupID/通配符(*)", value: "group", width: 120},
+        {text: "RoleId/通配符(*)", value: "role", width: 120},
+        {text: "PageId/通配符(*)", value: "page", width: 120, class: 'fixed', cellClass: 'fixed'},
+        {text: "权限状态", value: "allowOrDeny", width: 120},
+        {text: "说明", value: "desc", width: 420},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 180, class: 'fixed', cellClass: 'fixed'},
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      dialogSaveInfoAction: ''
+    },
     computed: {
       isMobile() {
         return window.innerWidth < 600;

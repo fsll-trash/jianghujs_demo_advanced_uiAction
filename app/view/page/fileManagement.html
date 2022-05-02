@@ -101,35 +101,6 @@
 
 {% block vue_body %}
 {% include 'common/uiAction.html' %}
-<script type="module">
-  window.registerData({
-    // 表格相关数据
-    isFormValid: true,
-    requireRules: [ v => !!v || 'This is required' ],
-    isEditDrawerShow: false,
-    searchInput: null,
-    isTableLoading: true,
-    tableDataFromBackend: [],
-    headers: [
-      {text: "文件ID", value: "fileId", width: 120, required: true, class: 'fixed', cellClass: 'fixed'},
-      {text: "文件存储位置", value: "fileDirectory", width: 120, required: true},
-      {text: "文件名", value: "filename", width: 120},
-      {text: "文件保存名", value: "filenameStorage", width: 120},
-      {text: "文件下载路径", value: "downloadPath", width: 650},
-      {text: "文件大小", value: "binarySize", width: 120},
-      {text: "文件描述", value: "fileDesc", width: 120},
-      {text: "操作人", value: "operationByUser", width: 120},
-      {text: "操作时间", value: "operationAt", width: 250},
-      {text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'}
-    ],
-
-    currentClickButton: {title: '新增', action: 'add'},
-    editItem: {},
-    inputFile: null,
-    downloadPrefix: `${window.location.origin}/<$ ctx.app.config.appId $>/upload`,
-    dialogSaveInfoAction: ''
-  })
-</script>
 {% include 'layout/jhLayout.html' %}
 {% include 'common/resetTableMaxHeight.html' %}
 <script type="module">
@@ -138,7 +109,33 @@
     template: '#app-template',
     vuetify: new Vuetify(),
     mixins: [window.jianghuUiActionMixins],
-    data: () => window.vueData,
+    data: {
+      // 表格相关数据
+      isFormValid: true,
+      requireRules: [ v => !!v || 'This is required' ],
+      isEditDrawerShow: false,
+      searchInput: null,
+      isTableLoading: true,
+      tableDataFromBackend: [],
+      headers: [
+        {text: "文件ID", value: "fileId", width: 120, required: true, class: 'fixed', cellClass: 'fixed'},
+        {text: "文件存储位置", value: "fileDirectory", width: 120, required: true},
+        {text: "文件名", value: "filename", width: 120},
+        {text: "文件保存名", value: "filenameStorage", width: 120},
+        {text: "文件下载路径", value: "downloadPath", width: 650},
+        {text: "文件大小", value: "binarySize", width: 120},
+        {text: "文件描述", value: "fileDesc", width: 120},
+        {text: "操作人", value: "operationByUser", width: 120},
+        {text: "操作时间", value: "operationAt", width: 250},
+        {text: '操作', value: 'action', align: 'center', sortable: false, width: 200, class: 'fixed', cellClass: 'fixed'}
+      ],
+
+      currentClickButton: {title: '新增', action: 'add'},
+      editItem: {},
+      inputFile: null,
+      downloadPrefix: `${window.location.origin}/<$ ctx.app.config.appId $>/upload`,
+      dialogSaveInfoAction: ''
+    },
     computed: {
       isMobile() {
         return window.innerWidth < 600;
