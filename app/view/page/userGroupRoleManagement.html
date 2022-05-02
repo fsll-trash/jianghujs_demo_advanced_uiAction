@@ -1,4 +1,4 @@
-{% extends 'index.html'%}
+{% extends 'template/jhTemplate.html'%}
 
 {% block vue_template %}
 
@@ -365,6 +365,7 @@
       },
       // 获取当前左侧选中的选项详情
       buildActiveItemInfo(value) {
+        console.log(this.selectedItem)
         const tabItemList = [value.user, value.group, value.role][this.pageTab || 0];
         if(tabItemList && tabItemList[this.selectedItem || 0]) {
           this.activeItemInfo = tabItemList[this.selectedItem || 0].data;

@@ -1,4 +1,4 @@
-{% extends 'index.html'%}
+{% extends 'template/jhTemplate.html'%}
 
 {% block vue_template %}
 
@@ -221,6 +221,7 @@ new Vue({
     // viewRecordHistory
     async doViewRecordHistory(item) {
       const { id } = item;
+      this.drawerTableData = [];
       this.isEditDrawerShow = true;
       this.isDrawerTableLoading = true;
       const result = await window.jianghuAxios({
