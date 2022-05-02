@@ -37,18 +37,18 @@
         {{ getConstantCollectionItemText('userStatus', item.userStatus) }}
       </template>
       <template v-slot:item.action="{ item }">
-        <v-btn small class="mr-2" color="success" @click="doUiAction('startUpdateItem', item)">修改</v-btn>
+        <v-btn small class="mr-2" color="success" @click="doUiAction('startUpdateItem', {item})">修改</v-btn>
         <v-btn small class="mr-2" color="primary"
                v-if="item.userStatus !== 'active'"
-               @click="doUiAction('activeUserStatus', item)">
+               @click="doUiAction('activeUserStatus', {item})">
           激活用户
         </v-btn>
         <v-btn small class="mr-2" color="error"
                v-if="item.userStatus === 'active'"
-               @click="doUiAction('bannedUserStatus', item)">
+               @click="doUiAction('bannedUserStatus', {item})">
           禁用用户
         </v-btn>
-        <v-btn small class="mr-2" color="error" v-if="item.userStatus === 'active'" @click="doUiAction('startResetPassword', item)">
+        <v-btn small class="mr-2" color="error" v-if="item.userStatus === 'active'" @click="doUiAction('startResetPassword', {item})">
           修改密码
         </v-btn>
       </template>
@@ -220,7 +220,7 @@
       },
 
       // startUpdateItem
-      async prepareItemData(item) {
+      async prepareItemData({item}) {
         this.editItem = {...item};
       },
 
@@ -261,7 +261,7 @@
       /**
        * 激活用户
        */
-      async doActiveUserStatus(item) {
+      async doActiveUserStatus({item}) {
         const { userId } = item;
         await window.vtoast.loading('正在激活');
         await window.jianghuAxios({
@@ -284,7 +284,7 @@
       /**
        * 禁用用户
        */
-      async doBannedUserStatus(item) {
+      async doBannedUserStatus({item}) {
         const { userId } = item;
         await window.vtoast.loading('正在禁用');
         await window.jianghuAxios({
