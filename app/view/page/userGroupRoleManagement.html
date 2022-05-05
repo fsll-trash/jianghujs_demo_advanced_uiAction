@@ -377,7 +377,7 @@
             }
           }
         });
-        this.constantCollection.group = [...result.data.appData.rows.map((group) => {
+        this.constantCollection.group = [...result.data.appData.resultData.rows.map((group) => {
           return {value: group.groupId, text: group.groupName, data: group}
         })]
       },
@@ -390,7 +390,7 @@
             }
           }
         });
-        this.constantCollection.role = [...result.data.appData.rows.map((role) => {
+        this.constantCollection.role = [...result.data.appData.resultData.rows.map((role) => {
           return {value: role.roleId, text: role.roleName, data: role}
         })]
       },
@@ -403,7 +403,7 @@
             }
           }
         });
-        this.constantCollection.user = [...result.data.appData.rows.map((user) => {
+        this.constantCollection.user = [...result.data.appData.resultData.rows.map((user) => {
           return {value: user.userId, text: user.username, data: user}
         })]
       },
@@ -427,7 +427,7 @@
             }
           }
         });
-        this.tableDataFromBackend = result.data.appData.rows;
+        this.tableDataFromBackend = result.data.appData.resultData.rows;
         this.buildActiveItemInfo(this.constantCollection);
         this.isTableLoading = false;
       },

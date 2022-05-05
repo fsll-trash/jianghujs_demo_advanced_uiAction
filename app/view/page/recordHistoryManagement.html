@@ -176,7 +176,7 @@ new Vue({
             }
           }
         });
-        this.tableDataFromBackend = result.data.appData.rows;
+        this.tableDataFromBackend = result.data.appData.resultData.rows;
       }
 
       if (this.currentHistoryDataType === 'deleted') {
@@ -191,7 +191,7 @@ new Vue({
             }
           }
         });
-        this.tableDataFromBackend = result.data.appData.rows;
+        this.tableDataFromBackend = result.data.appData.resultData.rows;
       }
     },
 
@@ -233,7 +233,7 @@ new Vue({
           }
         }
       });
-      const rows = result.data.appData.rows.map(row => {
+      const rows = result.data.appData.resultData.rows.map(row => {
         const { recordContent, id: recordHistoryId } = row;
         let record = { };
         try {
