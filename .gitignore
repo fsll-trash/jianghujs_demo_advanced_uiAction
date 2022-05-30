@@ -23,4 +23,3 @@ multipartTmp/**
 .vscode
 .travis.yml
 appveyor.yml
-.jhconfig
